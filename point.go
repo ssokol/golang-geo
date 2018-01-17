@@ -101,6 +101,27 @@ func (p *Point) BearingTo(p2 *Point) float64 {
 	return brng
 }
 
+// returns cross track error in kilometers
+func (p *Point) CrossTrackError(start *Point, end *Point) float64 {
+
+	// constants
+	r := 6371.000		// radius of the earth in meters
+	deg := (math.Pi/180)	// degrees to radians
+	
+	// d13 = distance start to current
+	d13 := start.GreatCircleDistance(p) 
+	
+	// t12 = bearning start to end (in radians)
+	t12 := start.BearingTo(end) * deg
+	
+	// t13 = bearing start to current (in radians)
+	t13 := start.BearingTo(p) * deg
+	
+	xte := math.Asin(math.Sin(d13 / r) * math.Sin(t13 - t12)) * r;
+	
+	return xte
+}
+
 // Calculates the midpoint between 'this' point and the supplied point.
 // Original implementation from http://www.movable-type.co.uk/scripts/latlong.html
 func (p *Point) MidpointTo(p2 *Point) *Point {
