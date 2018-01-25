@@ -98,6 +98,9 @@ func (p *Point) BearingTo(p2 *Point) float64 {
 		math.Sin(lat1)*math.Cos(lat2)*math.Cos(dLon)
 	brng := math.Atan2(y, x) * 180.0 / math.Pi
 
+	if brng < 0 {
+		brng = 360 + brng
+	}
 	return brng
 }
 
@@ -120,6 +123,23 @@ func (p *Point) CrossTrackError(start *Point, end *Point) float64 {
 	xte := math.Asin(math.Sin(d13 / r) * math.Sin(t13 - t12)) * r;
 	
 	return xte
+}
+
+// returns distance along the track in kilometers
+func (p *Point) AlongTrackDistance(start *Point, end *Point) float64 {
+
+	// constants
+	r := 6371.000		// radius of the earth in meters
+		
+	// d13 - distance start to current
+	d13 := start.GreatCircleDistance(p)
+	
+	// dxt - cross-track error
+	dxt := p.CrossTrackError(start, end)
+	
+	dat := math.Acos(math.Cos(d13 / r) / math.Cos(dxt / r)) * r
+	
+	return dat
 }
 
 // Calculates the midpoint between 'this' point and the supplied point.
